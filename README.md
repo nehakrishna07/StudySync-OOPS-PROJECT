@@ -1,147 +1,237 @@
-# StudySync — Student-Friendly OOP Refactor
+# StudySync
 
-**Same working StudySync web application; clearer C++ class organisation.**
+**A smart academic planner and workload management web application built with C++17.**
 
-This edition retains separate `.h` and `.cpp` files for the main C++ classes, makes `Task` fields private with validated setters and a parameterised constructor, and breaks the large request handler and scheduler preparation into named steps. The existing API routes, database schema and six added features are retained. `findTask` demonstrates function overloading.
+StudySync helps students organise assignments, projects, exams and revision, plan their available study hours, and identify when upcoming deadlines may be difficult to meet. It combines a browser-based interface with a C++ backend and SQLite database.
 
-**Latest cleanup:** `App::taskRoutes()` now delegates to `listTasks()`, `addTask()`, `editTask()`, `deleteTask()` and `updateTaskProgress()`; availability GET/PUT use `getAvailability()` and `saveAvailability()`. The scheduler delegates pinned sessions, automatic allocation, explanations and sorting to small helpers. These changes are organisational; endpoint names, storage and scheduling rules are unchanged.
+> **Project type:** C++ Object-Oriented Programming (OOP) mini-project  
+> **Platform:** Local web application (runs on your computer)  
+> **No Qt, Node.js or frontend build system required.**
 
-**Latest readability update:** calendar session moves and study-time logging are now broken into small, easy-to-read methods. See `docs/FINAL_READABILITY_CHANGES.md`.
+## Features
 
-**New:** the dashboard greeting follows your browser’s local time (morning, afternoon or evening).
+- **User accounts:** Registration and login with separate tasks and study data for each account.
+- **Task management:** Add, view, edit and delete academic tasks with categories, priorities, difficulty levels, deadlines and estimated hours.
+- **Smart scheduling:** Generate a study plan based on deadlines, remaining task hours and weekly availability.
+- **Weekly availability:** Set the amount of time available for studying on different days.
+- **Workload analysis:** Review workload, scheduling feasibility and unallocated study hours.
+- **Interactive calendar:** View scheduled sessions and manually move or release sessions, subject to deadline and capacity checks.
+- **What-if Simulator:** Add a hypothetical task to see how it would affect the schedule, without saving it.
+- **Focus Timer:** Study using a 25-minute timer and 5-minute break option; log completed study time manually.
+- **Time tracking:** Compare estimated work with actual study time and track remaining hours.
+- **Smart reminders:** See upcoming deadlines, overdue tasks and scheduling warnings; dismiss reminders.
+- **Explainable scheduling:** View explanations for task ordering and hours that could not be allocated.
+- **Light and dark themes:** Includes a time-aware dashboard greeting.
 
-Read **`docs/OOP_CONCEPTS_AND_CODE_GUIDE.md`** for the exact OOP concepts, examples and limitations.
+## Technology stack
 
-**Do not overwrite an existing working installation.** Extract into a new folder. Copy your backed-up `data/studysync.db` only if you want to preserve tasks/accounts, and keep the old version until the new one works on your Windows PC.
+| Layer | Technology |
+|---|---|
+| Backend | C++17 |
+| Frontend | HTML, CSS, vanilla JavaScript |
+| Database | SQLite3 |
+| Server | Local C++ HTTP server |
+| Build system | CMake |
+| Windows development | VS Code, MSYS2 UCRT64, GCC and Ninja |
 
-## Run in VS Code (Windows 11, MSYS2 UCRT64)
+The app uses **no Qt framework** and does not require npm.
 
-Open the project root folder, not `build`, and open a PowerShell terminal:
+## How the application works
 
-```powershell
-$env:Path = "C:\msys64\ucrt64\bin;$env:Path"
-cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=C:/msys64/ucrt64
-cmake --build build
-.\build\StudySyncWeb.exe
+```text
+Browser (HTML / CSS / JavaScript)
+               |
+         HTTP + JSON
+               |
+       Local C++ server
+               |
+       App request handler
+          /         \
+   TaskManager    Scheduler
+          \         /
+          SQLite database
 ```
 
-Then go to http://127.0.0.1:8080 in Chrome. Keep the server terminal open.
+1. The user interacts with the website.
+2. JavaScript sends a request to the local C++ server.
+3. The backend validates the request and reads or updates the database.
+4. The scheduler generates a deadline-aware study plan when needed.
+5. The browser displays the response.
 
-If an old `build` folder uses MinGW Makefiles instead of Ninja, delete **only** the generated `build` directory (after checking no database was placed there), then reconfigure. The SQLite database normally lives at `data/studysync.db` relative to the terminal's working directory.
+## OOP concepts demonstrated
 
-## Test (optional)
+| Concept | Implementation |
+|---|---|
+| Classes and objects | `Task`, `TaskManager`, `Scheduler`, `Database`, etc. |
+| Encapsulation | Private task fields accessed through getters and validated setters |
+| Parameterised constructors | Initialising academic task details |
+| Inheritance | `Assignment`, `Project`, `LabWork`, `Exam` and `Revision` derive from `Task` |
+| Abstraction | Abstract `Task` base class |
+| Runtime polymorphism | Virtual functions used through base-class pointers |
+| Function overriding | Task-type-specific implementations |
+| Function overloading | `findTask()` by task ID or title |
+| Operator overloading | `operator>` compares task scores |
+| STL and templates | Containers, smart pointers, sorting utilities |
+| Exception handling | Error handling for invalid inputs and database operations |
 
-```powershell
-ctest --test-dir build --output-on-failure
+## Project structure
+
+```text
+StudySync/
+├── backend/
+│   ├── main.cpp
+│   ├── models/
+│   │   ├── Task.h
+│   │   ├── Task.cpp
+│   │   └── Json.h
+│   ├── services/
+│   │   ├── App.h / App.cpp
+│   │   ├── TaskManager.h / TaskManager.cpp
+│   │   └── Scheduler.h / Scheduler.cpp
+│   ├── database/
+│   │   └── Database.h / Database.cpp
+│   ├── server/
+│   │   └── HttpServer.h / HttpServer.cpp
+│   └── utils/
+│       └── Common.h
+├── frontend/
+│   ├── index.html
+│   ├── css/style.css
+│   └── js/
+│       ├── app.js
+│       ├── pages.js
+│       ├── tasks.js
+│       ├── calendar.js
+│       └── features.js
+├── docs/
+├── CMakeLists.txt
+└── README.md
 ```
 
-# StudySync — Enhanced (no Qt)
+If you kept the automated tests, the project also contains a `tests/` directory. The SQLite database is created locally when the app runs and **should not be uploaded to GitHub**.
 
-A **local browser-based academic planner** for a C++17 OOP mini-project.
+## Getting started (Windows 11)
 
-- **Frontend:** HTML, CSS, vanilla JavaScript (no npm)
-- **Backend:** C++17 local HTTP server and a deadline-first scheduling class
-- **Storage:** SQLite3 using prepared statements
-- **Design:** ivory/sage-green light mode and forest-charcoal/sage dark mode
-- **Development:** VS Code + MSYS2 UCRT64 + CMake/Ninja on Windows 11
-- **No Qt dependencies.**
+### 1. Requirements
 
-## All six new features
+Install:
 
-1. **Interactive weekly calendar:** select a day or task block; choose **Move** to reserve a session on another day. It cannot be placed after the task deadline or beyond daily capacity. **Auto-place** removes a manual reservation. Any other sessions are recalculated from the remaining capacity. This is a controlled rescheduling action, not drag-and-drop.
-2. **What-if Simulator:** enter a hypothetical task to compare unallocated work **before/after**. This calls C++ scheduling logic **without saving** the hypothetical task.
-3. **Focus Timer:** 25-minute study timer, pause/reset, and a 5-minute break button. **Finish & log** writes completed minutes to SQLite, and changes the task's remaining work. It never records break minutes.
-4. **Estimated vs Actual:** open **Time Tracking** to manually log study minutes, view each task's original estimate, cumulative logged time and remaining estimated hours. Recent sessions show the last 100 entries; totals include all sessions.
-5. **Smart Reminders:** deadlines coming within three days, overdue tasks, and unallocated work warnings. Each reminder can be dismissed; the dismissal is tied to your account in SQLite.
-6. **Explainable Scheduling:** open Smart Schedule → **Why this schedule?** to see why a task was ordered and what couldn't fit.
+- [Visual Studio Code](https://code.visualstudio.com/)
+- [MSYS2](https://www.msys2.org/) with the **UCRT64** environment
+- Git (only needed for cloning and uploading to GitHub)
 
-## Install (once)
-
-Open **MSYS2 UCRT64** and run:
+Open **MSYS2 UCRT64**, then install the compiler, CMake, Ninja and SQLite:
 
 ```bash
 pacman -S --needed mingw-w64-ucrt-x86_64-gcc mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-ninja mingw-w64-ucrt-x86_64-sqlite3
 ```
 
-## Run in VS Code (PowerShell)
+### 2. Get the project
 
-Extract this ZIP and open the **StudySync_Enhanced** folder (the one with `CMakeLists.txt`).
+Download the repository as a ZIP from GitHub **or** clone it:
+
+```bash
+git clone https://github.com/YOUR_USERNAME/StudySync.git
+cd StudySync
+```
+
+Replace `YOUR_USERNAME` with the actual GitHub username. Open the project folder (the one containing `CMakeLists.txt`) in VS Code.
+
+### 3. Build in VS Code
+
+Open **Terminal → New Terminal** and use **PowerShell**.
+
+First, add the MSYS2 UCRT64 programs to your terminal's PATH:
 
 ```powershell
 $env:Path = "C:\msys64\ucrt64\bin;$env:Path"
+```
+
+Configure and build:
+
+```powershell
 cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=C:/msys64/ucrt64
 cmake --build build
+```
+
+**If you removed the `tests/` folder:** also remove its `StudySyncCoreTests` target and related test commands from `CMakeLists.txt`, or configure with `-DBUILD_TESTING=OFF`:
+
+```powershell
+cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=C:/msys64/ucrt64 -DBUILD_TESTING=OFF
+```
+
+If CMake reports that the existing `build/` folder was configured with a different generator, delete **only** the generated `build/` folder and run the configuration command again.
+
+### 4. Run StudySync
+
+From the project root in the same terminal:
+
+```powershell
 .\build\StudySyncWeb.exe
 ```
 
-With the server running, open **http://127.0.0.1:8080** in Chrome. Keep the terminal open. Press `Ctrl+C` to stop the server. Refresh with `Ctrl+Shift+R` after frontend changes.
+Open **http://127.0.0.1:8080** in your browser.
 
-**Already built using MinGW Makefiles?** CMake caches the generator in `build/`. Delete only that old `build/` directory before configuring again, e.g. `Remove-Item -Recurse -Force build` in PowerShell. This does **not** remove the `data/` directory.
+Keep the terminal open while using the website. Press `Ctrl+C` to stop the server.
 
-## Keep your existing accounts and tasks
+### 5. First use
 
-1. Stop your previous server.
-2. **Back up the complete previous StudySync folder** and specifically `data/studysync.db`.
-3. Extract this ZIP into a **new** `StudySync_Enhanced` folder. Do not mix old frontend/C++ files with the new ones.
-4. Copy your old `data/studysync.db` into the new project's `data/` folder **before the first start**.
-5. Build and launch this new project **from its root folder**, using the commands above.
+1. Register an account and log in.
+2. Set your weekly study availability.
+3. Add academic tasks, deadlines and estimated hours.
+4. Open **Smart Schedule** to generate a study plan.
+5. Explore the calendar, simulator, timer, tracking and reminders.
 
-The new version creates three **additional tables** in the existing SQLite database (`time_logs`, `pinned_sessions`, `dismissed_alerts`); it doesn't replace the original Users/Tasks/Availability tables. The database path depends on the *current working directory*, so always launch from the project root. Sessions/tokens are in memory and require login after a server restart.
+## Scheduling approach
 
-## What the new files do
+StudySync uses an explainable, **deadline-first greedy scheduling algorithm**:
 
-| File | Responsibility |
-|---|---|
-| `backend/models/Task.h` | Abstract Task, derived task types, priority and generic sorting |
-| `backend/services/Scheduler.h` | Deadline-aware greedy scheduling; manual session reservations and explanations |
-| `backend/services/App.h` | API endpoints, task validation, simulation, time logs, reminders |
-| `backend/services/TaskManager.h` | Converts SQLite rows into polymorphic Task objects |
-| `backend/database/Database.h` | SQLite schema, migration-safe additive tables and prepared statements |
-| `backend/server/HttpServer.h` | Local HTTP server, JSON requests and static files |
-| `frontend/js/pages.js` | Core page rendering |
-| `frontend/js/calendar.js` | Seven-day timetable |
-| `frontend/js/features.js` | New simulator, timer, tracking, reminders and day controls |
-| `frontend/js/tasks.js` | Existing task forms and availability |
-| `frontend/css/style.css` | Light/dark theme and layout |
-| `docs/VIVA_GUIDE.md` | Student-friendly explanation and OOP mapping |
+1. Collect unfinished tasks with remaining work.
+2. Prioritise earlier deadlines and use task scores when needed.
+3. Calculate daily capacity from weekly study availability.
+4. Respect manually reserved sessions.
+5. Allocate remaining work to available days before deadlines.
+6. Report tasks or hours that do not fit.
 
-## Tests
+The scheduler plans within a **30-day window**. This is a heuristic academic planner, not a guarantee that every task can be finished.
 
-```powershell
-ctest --test-dir build --output-on-failure
-```
+## Screenshots
 
-The core C++ test covers deadline scheduling, pinning, completed-task exclusion and OOP foundations. Optional API integration tests require Python and a running built executable (`python tests/integration_test.py build/StudySyncWeb.exe`); the integration script starts a temporary server and creates a temporary DB, not your real data. `tests/ui_smoke.py` is an optional visual test that requires Python Playwright and Chromium (not needed to run StudySync).
+Add screenshots captured from **your running application** to a `screenshots/` folder, then uncomment these lines:
 
-## Important limits
+<!--
+### Light mode
+![StudySync light mode](screenshots/light-mode.png)
 
-- The scheduler uses a **30-day planning window**, with an explainable greedy algorithm. Tasks later than the window may still have unallocated hours until a later planning period.
-- Manual scheduling **anchors** hours on your chosen day and recalculates the rest; it doesn't perform mouse drag-and-drop or guarantee the previous auto-generated day remains empty.
-- The weekly utilisation percentage divides *all remaining estimated work* by *one week's capacity*, as a simple workload indicator. Per-deadline feasibility comes from the actual date-based scheduler.
-- Time logging subtracts actual study minutes from estimated remaining hours. These are two different measures; actual hours can exceed the initial estimate.
-- The timer runs in your browser and the session is only stored after you press **Finish & log**. Closing or refreshing the tab without logging loses its timer state.
-- This is an educational **localhost** app, not a hardened publicly deployed service. Do not expose its port to the internet.
+### Dark mode
+![StudySync dark mode](screenshots/dark-mode.png)
+-->
 
-## Student-friendly readability update
+## Notes and limitations
 
-This edition retains the same functionality as the six-feature StudySync version, but
-makes the most important C++ and frontend files easier to read, with plain names,
-step-by-step loops, consistent indentation, and comments describing *why* the code
-works. No new dependencies or Qt components were introduced.
+- StudySync runs locally at `127.0.0.1:8080` and is **not designed for public internet deployment**.
+- The Focus Timer only saves study time when the user explicitly logs it; refreshing the page can reset an unlogged timer.
+- Manually moved calendar sessions are reserved for a selected day; the feature is not drag-and-drop.
+- The What-if Simulator does **not** save hypothetical tasks.
+- Login sessions are held in memory, so restarting the server may require logging in again.
+- The SQLite database is stored under `data/studysync.db`, relative to the folder where the server starts. Keep it out of version control.
 
-**Learn the code:** see [`docs/CODE_EXPLANATION.md`](docs/CODE_EXPLANATION.md) and
-[`docs/READ_THIS_FIRST.md`](docs/READ_THIS_FIRST.md). The existing
-[`docs/VIVA_GUIDE.md`](docs/VIVA_GUIDE.md) is included too.
+## Troubleshooting
 
+**`cmake` or `g++` not recognised:** Confirm MSYS2 UCRT64 is installed and run the PATH command in the current terminal.
 
-## Final readability refactor (November 2026)
+**CMake says `tests/core_tests.cpp` is missing:** Configure with `-DBUILD_TESTING=OFF`, or remove the test target from `CMakeLists.txt`.
 
-The following larger functions were separated without changing the database schema or JSON API:
+**CMake generator mismatch:** Remove the generated `build/` directory and configure again using Ninja.
 
-- `HttpServer.cpp`: `serve()` now delegates to `readRequest()`, `handleApiRequest()` and `serveStaticFile()`.
-- `App.cpp`: `registerUser()` delegates validation and insertion to `validRegistration()` and `createUser()`.
-- `calendarRoutes()` delegates to `moveSession()` and `unpinSession()`.
-- `timeRoutes()` delegates to `getTimeLogs()` and `saveTimeLog()`.
-- `alerts()` delegates to `getWorkloadAlerts()` and `getDeadlineAlerts()`, then filters dismissed alerts.
+**Website not opening:** Make sure `StudySyncWeb.exe` is running and visit `http://127.0.0.1:8080`.
 
-These are internal code-organisation changes. Your dynamic greeting and existing features remain unchanged.
+**Port already in use:** Stop the earlier StudySync process before starting another instance.
+
+## Documentation
+
+See `docs/` for additional code explanations, OOP concept notes, refactoring information and viva preparation material.
+
+---
+
+**StudySync** — *Plan smarter. Study better.*
