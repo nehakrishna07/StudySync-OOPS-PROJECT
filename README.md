@@ -192,12 +192,12 @@ StudySync uses an explainable, **deadline-first greedy scheduling algorithm**:
 6. Report tasks or hours that do not fit.
 
 The scheduler plans within a **30-day window**. This is a heuristic academic planner, not a guarantee that every task can be finished.
-
+<!--
 ## Screenshots
 
 Add screenshots captured from **your running application** to a `screenshots/` folder, then uncomment these lines:
 
-<!--
+
 ### Light mode
 ![StudySync light mode](screenshots/light-mode.png)
 
