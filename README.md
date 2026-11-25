@@ -108,8 +108,6 @@ StudySync/
 └── README.md
 ```
 
-If you kept the automated tests, the project also contains a `tests/` directory. The SQLite database is created locally when the app runs and **should not be uploaded to GitHub**.
-
 ## Getting started (Windows 11)
 
 ### 1. Requirements
