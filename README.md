@@ -226,10 +226,11 @@ Add screenshots captured from **your running application** to a `screenshots/` f
 
 **Port already in use:** Stop the earlier StudySync process before starting another instance.
 
+<!--
 ## Documentation
 
 See `docs/` for additional code explanations, OOP concept notes, refactoring information and viva preparation material.
-
+-->
 ---
 
 **StudySync** — *Plan smarter. Study better.*
